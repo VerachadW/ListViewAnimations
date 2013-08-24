@@ -28,16 +28,30 @@ import com.haarman.listviewanimations.BaseAdapterDecorator;
  */
 public class SwipeDismissAdapter extends BaseAdapterDecorator {
 
+    public static final int TO_RIGHT_ONLY = 10;
+    public static final int TO_LEFT_ONLY = 11;
+
 	private OnDismissCallback mCallback;
+    private int mAllowedDirection = -1;
 
 	public SwipeDismissAdapter(BaseAdapter baseAdapter, OnDismissCallback callback) {
 		super(baseAdapter);
 		mCallback = callback;
 	}
 
+    public SwipeDismissAdapter(BaseAdapter baseAdapter, OnDismissCallback callback, int swipeDirection) {
+        super(baseAdapter);
+        mCallback = callback;
+        mAllowedDirection = swipeDirection;
+    }
+
 	@Override
 	public void setAbsListView(AbsListView listView) {
 		super.setAbsListView(listView);
-		listView.setOnTouchListener(new SwipeDismissListViewTouchListener(listView, mCallback));
+        if (mAllowedDirection != -1){
+		    listView.setOnTouchListener(new SwipeDismissListViewTouchListener(listView, mCallback, mAllowedDirection));
+        } else{
+            listView.setOnTouchListener(new SwipeDismissListViewTouchListener(listView, mCallback));
+        }
 	}
 }

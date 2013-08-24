@@ -25,6 +25,7 @@ import com.haarman.listviewanimations.ArrayAdapter;
 import com.haarman.listviewanimations.MyListActivity;
 import com.haarman.listviewanimations.itemmanipulation.OnDismissCallback;
 import com.haarman.listviewanimations.itemmanipulation.SwipeDismissAdapter;
+import com.haarman.listviewanimations.itemmanipulation.SwipeDismissListViewTouchListener;
 
 public class SwipeDismissActivity extends MyListActivity {
 	@Override
@@ -33,8 +34,10 @@ public class SwipeDismissActivity extends MyListActivity {
 
 		ArrayAdapter<String> mAdapter = createListAdapter();
 
-		SwipeDismissAdapter swipeDismissAdapter = new SwipeDismissAdapter(mAdapter, new MyOnDismissCallback(mAdapter));
-		swipeDismissAdapter.setAbsListView(getListView());
+//		SwipeDismissAdapter swipeDismissAdapter = new SwipeDismissAdapter(mAdapter, new MyOnDismissCallback(mAdapter));
+        SwipeDismissAdapter swipeDismissAdapter = new SwipeDismissAdapter(mAdapter, new MyOnDismissCallback(mAdapter)
+                                                        , SwipeDismissAdapter.TO_RIGHT_ONLY);
+		swipeDismissAdapter.setAbsListView(getListView());;
 
 		getListView().setAdapter(swipeDismissAdapter);
 	}

@@ -65,7 +65,8 @@ import com.nineoldandroids.view.ViewHelper;
  */
 @SuppressLint("Recycle")
 public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
-	// Cached ViewConfiguration and system-wide constant values
+
+    // Cached ViewConfiguration and system-wide constant values
 	private int mSlop;
 	private int mMinFlingVelocity;
 	private int mMaxFlingVelocity;
@@ -86,6 +87,7 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 	private int mDownPosition;
 	private View mDownView;
 	private boolean mPaused;
+    private int mAllowedSwipeDiretion = -1;
 
 	/**
 	 * Constructs a new swipe-to-dismiss touch listener for the given list view.
@@ -105,6 +107,19 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 		mListView = listView;
 		mCallback = callback;
 	}
+
+    public SwipeDismissListViewTouchListener(AbsListView listView, OnDismissCallback callback, int swipeDirection) {
+        ViewConfiguration vc = ViewConfiguration.get(listView.getContext());
+        mSlop = vc.getScaledTouchSlop();
+        mMinFlingVelocity = vc.getScaledMinimumFlingVelocity() * 16;
+        mMaxFlingVelocity = vc.getScaledMaximumFlingVelocity();
+        mAnimationTime = listView.getContext().getResources().getInteger(android.R.integer.config_shortAnimTime);
+        mListView = listView;
+        mCallback = callback;
+
+        mAllowedSwipeDiretion = swipeDirection;
+    }
+
 
 	@Override
 	public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -168,7 +183,7 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 					dismiss = true;
 					dismissRight = mVelocityTracker.getXVelocity() > 0;
 				}
-				if (dismiss) {
+				if (dismiss && isDirectionAllowed(dismissRight)) {
 					// dismiss
 					final View downView = mDownView; // mDownView gets
 														// null'd
@@ -202,7 +217,9 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 				mVelocityTracker.addMovement(motionEvent);
 				float deltaX = motionEvent.getRawX() - mDownX;
 				float deltaY = motionEvent.getRawY() - mDownY;
-				if (Math.abs(deltaX) > mSlop && Math.abs(deltaX) > Math.abs(deltaY)) {
+
+
+				if (Math.abs(deltaX) > mSlop && Math.abs(deltaX) > Math.abs(deltaY) && isDirectionAllowed(deltaX > 0)) {
 					mSwiping = true;
 					mListView.requestDisallowInterceptTouchEvent(true);
 
@@ -223,7 +240,15 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 		return false;
 	}
 
-	class PendingDismissData implements Comparable<PendingDismissData> {
+    private boolean isDirectionAllowed(boolean toRight) {
+
+        if (mAllowedSwipeDiretion == SwipeDismissAdapter.TO_RIGHT_ONLY) return toRight;
+        if (mAllowedSwipeDiretion == SwipeDismissAdapter.TO_LEFT_ONLY) return !toRight;
+
+        return true;
+    }
+
+    class PendingDismissData implements Comparable<PendingDismissData> {
 		public int position;
 		public View view;
 
